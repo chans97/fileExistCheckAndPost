@@ -1,0 +1,65 @@
+{
+  "name": "FileExistCheckAndPost",
+  "version": "1.0.0",
+  "description": "FileExistCheckAndPost",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "deploy:win": "npm run deploy:win32 && npm run deploy:win64",
+    "deploy:win32": "electron-builder --win nsis:ia32",
+    "deploy:win64": "electron-builder --win nsis:x64"
+  },
+  "build": {
+    "productName": "FileExistCheckAndPost",
+    "appId": "com.FileExistCheckAndPost",
+    "asar": true,
+    "protocols": {
+      "name": "FileExistCheckAndPost",
+      "schemes": [
+        "FileExistCheckAndPost"
+      ]
+    },
+    "mac": {
+      "target": [
+        "default"
+      ]
+    },
+    "dmg": {
+      "title": "FileExistCheckAndPost"
+    },
+    "win": {
+      "icon": "assets/icons/png/logo.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": false,
+      "runAfterFinish": false,
+      "include": "build/installer.nsh"
+    },
+    "directories": {
+      "buildResources": "./resources/installer/",
+      "output": "./dist/",
+      "app": "."
+    }
+  },
+  "author": "bentley",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.3"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
+}
