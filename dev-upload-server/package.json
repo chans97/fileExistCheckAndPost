@@ -1,0 +1,13 @@
+{
+  "name": "fileexist-upload-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple multipart upload receiver for FileExistCheckAndPost",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0"
+  }
+}

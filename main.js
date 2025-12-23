@@ -2,11 +2,14 @@ const {ipcMain, app, BrowserWindow, dialog} = require('electron');
 const axios = require('axios');
 const path = require('path');
 const fs = require("fs");
+const qs = require('qs');
+const {exec} = require("child_process");
+const FormData = require('form-data');
 
 let mainWindow;
 let docNo, empId, fileNumber, fileNameList;
-let SERVER_URL;
-const SEARCH_DIR = 'C:\\SynchroSpace\\TMP\\DesignManager';
+let SERVER_URL, COMMAND, COMMAND_ARGS;
+const SEARCH_DIR = 'C:/SynchroSpace/TMP/DesignManager';
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -31,12 +34,22 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
 
-  let path;
+  let PATH_VARIABLES;
   let values;
 
-  path = process.argv[1].split(':'); // 배포 시 활성화
-  // path = process.argv[2].split(':'); // 개발 시 활성화
-  values = path.slice(1).join(':').split('/');
+  // const ARGUMENT_START_AT = 1 // 배포 시 활성화
+  const ARGUMENT_START_AT = 2 // 개발 시 활성화
+
+  // PATH_VARIABLES = process.argv[1].split(':');
+  const query = decodeURI(process.argv.slice(ARGUMENT_START_AT).join(' ').split('?')[1].replace("%38","&"))
+
+  const parsedQuery = qs.parse(query);
+  COMMAND = parsedQuery.command;
+  COMMAND_ARGS = parsedQuery.command_args;
+  console.log(process.argv)
+
+  PATH_VARIABLES = process.argv.slice(ARGUMENT_START_AT).join(' ').split('?')[0]
+  values = PATH_VARIABLES.split(':').slice(1).join(':').split('/');
 
   docNo = values[0]
   empId = values[1]
@@ -59,6 +72,17 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.on('check_file',async  (event) => {
+  exec(`"${COMMAND}" ${COMMAND_ARGS}`, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+  });
   async function checkAgain() {
     let result = await  checkFilesInDirectory(SEARCH_DIR, fileNameList);
     if (!result) {
@@ -73,13 +97,11 @@ ipcMain.on('check_file',async  (event) => {
 })
 
 ipcMain.on('post_file', () => {
-  let data = new FormData();
+  const form = new FormData();
 
   fileNameList.forEach((fileName) => {
-    const fileReadStream = fs.createReadStream(SEARCH_DIR + "\\" + fileName);
-    const fileNameWithoutPath = path.basename(fileName);
-    const fileBlob = new Blob([fileReadStream]);
-    data.append('upload', fileBlob, fileNameWithoutPath)
+    const fileReadStream = fs.createReadStream(SEARCH_DIR + "/" + fileName);
+    form.append('upload', fileReadStream)
   });
 
   let config = {
@@ -87,13 +109,14 @@ ipcMain.on('post_file', () => {
     maxBodyLength: Infinity,
     url: `${SERVER_URL}?cmd=upload&fileId=fileId&docNo=${docNo}&empId=${empId}`,
     headers: {
-      'Content-Type': `multipart/form-data;`,
+      ...form.getHeaders()
     },
-    data: data
+    data: form
   };
 
   axios.request(config)
     .then((response) => {
+      console.log(response)
       dialog.showMessageBox({
         type: 'info',
         title: '성공',

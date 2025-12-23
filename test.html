@@ -7,10 +7,15 @@
 </head>
 
 <body>
-<a href="FileExistCheckAndPost:doc_no/empId/2/test.txt/test.pcb/http://211.222.80.11:8087/SS7/cmm/fileUpload.do">
+<a href="FileExistCheckAndPost:doc_no/empId/2/test.txt/test.pcb/http://localhost:8089/upload?command=C:\\Program%20Files\\FilePathInterface\\FilePathInterface.exe%38command_args=FilePathInterface:http/211.222.80.11/20000/FILE/1231243">
+  FileExistCheckAndPost:{doc_no}/{empId}/{file_number}/{file1_name}/{file2_name}/.../{SERVER_URL}?command={실행파일_전체_경로}%38{실행인자_전체 - 띄어쓰기는 %20으로 표현}
+</a>
+<br/>
+<br/>
+
+<a href="FileExistCheckAndPost:doc_no/empId/2/test.txt/test.pcb/http://localhost:8089/upload?command=">
   FileExistCheckAndPost:{doc_no}/{empId}/{file_number}/{file1_name}/{file2_name}/.../{SERVER_URL}
 </a>
-
 </body>
 
 </html>
